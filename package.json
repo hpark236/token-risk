@@ -1,0 +1,9 @@
+{
+  "name": "vitals",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Memecoin health check: contract authority, liquidity, holder concentration, trading pressure, exit slippage",
+  "scripts": { "test": "node --test test/*.test.js", "dev": "vercel dev" },
+  "engines": { "node": "22.x" }
+}

@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vitals · memecoin health check</title>
+<meta name="description" content="Paste a Solana or EVM token address. Vitals checks mint and freeze authority, liquidity depth, holder concentration, trade flow and age, then grades the token with the evidence shown.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 fill=%22%23f6f1ea%22/%3E%3Cpath d=%22M2 18h8l3-9 5 15 3-6h9%22 fill=%22none%22 stroke=%22%23c8322b%22 stroke-width=%222.6%22/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Martian+Mono:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f6f1ea; --sheet:#fffdf8; --ink:#1b1a18; --mute:#76716a; --rule:#ddd4c6;
+  --grid:#efc9c1; --gridB:#e3a89c; --trace:#1b1a18; --red:#c8322b; --amber:#b7791f; --green:#2f7d4f; --info:#5a6f86;
+  --sans:'Archivo',sans-serif; --mono:'Martian Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--paper)}
+body{background:var(--paper);color:var(--ink);font:400 14.5px/1.6 var(--sans);-webkit-font-smoothing:antialiased;min-height:100vh}
+a{color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+.mono{font-family:var(--mono)}
+.cap{font:400 10.5px/1.4 var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--mute)}
+
+header{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;padding:26px 0 22px;border-bottom:1.5px solid var(--ink)}
+.logo{font:800 30px/1 var(--sans);font-stretch:125%;letter-spacing:-.01em;display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo svg{width:44px;height:22px}
+form{display:flex;gap:0;border:1.5px solid var(--ink);background:var(--sheet)}
+form input{flex:1;min-width:0;border:0;background:none;font:400 13px var(--mono);padding:13px 14px;color:var(--ink);outline:none}
+form select{border:0;border-left:1.5px solid var(--ink);background:none;font:400 12px var(--mono);padding:0 10px;color:var(--ink)}
+form button{border:0;border-left:1.5px solid var(--ink);background:var(--ink);color:var(--sheet);font:700 14px var(--sans);font-stretch:112%;letter-spacing:.04em;padding:0 22px;cursor:pointer;text-transform:uppercase}
+form button:hover{background:var(--red)}
+
+.intro{display:grid;grid-template-columns:1.25fr 1fr;gap:48px;padding:44px 0 34px;border-bottom:1px solid var(--rule)}
+.intro h1{font:700 clamp(38px,5.4vw,70px)/.95 var(--sans);font-stretch:75%;letter-spacing:-.01em;text-transform:uppercase}
+.intro h1 span{color:var(--red)}
+.intro p{font-size:15px;max-width:48ch}
+.intro p+p{margin-top:10px;color:var(--mute)}
+
+h2.sec{font:700 13px/1 var(--sans);font-stretch:112%;letter-spacing:.14em;text-transform:uppercase;margin:34px 0 12px;display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+table.list{width:100%;border-collapse:collapse;background:var(--sheet);border:1px solid var(--rule)}
+table.list th{font:400 10px var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--mute);text-align:right;padding:10px 12px;border-bottom:1px solid var(--rule)}
+table.list td{padding:10px 12px;border-bottom:1px solid var(--rule);text-align:right;font:400 12px var(--mono);white-space:nowrap}
+table.list th:first-child,table.list td:first-child{text-align:left}
+table.list tbody tr{cursor:pointer}
+table.list tbody tr:hover td{background:#f8efe6}
+.tok{display:flex;align-items:center;gap:10px;font:600 14px var(--sans)}
+.tok img{width:26px;height:26px;border-radius:50%;object-fit:cover;background:var(--rule)}
+.tok small{font:400 10px var(--mono);color:var(--mute);text-transform:uppercase;display:block}
+.up{color:var(--green)} .dn{color:var(--red)}
+
+/* report */
+.patient{display:grid;grid-template-columns:auto 1fr auto;gap:22px;align-items:center;padding:30px 0 22px}
+.patient img{width:76px;height:76px;border-radius:50%;object-fit:cover;border:1.5px solid var(--ink);background:var(--rule)}
+.patient h1{font:800 clamp(30px,4.2vw,52px)/1 var(--sans);font-stretch:80%;text-transform:uppercase;letter-spacing:-.005em}
+.patient .addr{font:400 11px var(--mono);color:var(--mute);margin-top:6px;word-break:break-all;cursor:copy}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.chip{font:400 10px var(--mono);text-transform:uppercase;letter-spacing:.06em;border:1px solid var(--ink);padding:3px 7px;text-decoration:none}
+.score{text-align:right}
+.score b{display:block;font:800 104px/.82 var(--sans);font-stretch:62%;letter-spacing:-.02em}
+.score .g{font:800 22px/1 var(--sans);font-stretch:125%;padding:4px 10px;color:var(--sheet);display:inline-block;margin-top:8px}
+
+.verdict{border:1.5px solid var(--ink);background:var(--sheet);padding:16px 18px;display:flex;justify-content:space-between;gap:20px;align-items:center;flex-wrap:wrap}
+.verdict p{font:600 18px/1.35 var(--sans);font-stretch:95%}
+.verdict .cap{max-width:42ch}
+
+.ecg{margin-top:22px;border:1.5px solid var(--ink);background:var(--sheet);position:relative}
+.ecg canvas{display:block;width:100%;height:220px}
+.ecg .lbl{position:absolute;top:10px;left:12px;background:var(--sheet);padding:2px 6px}
+.ecg .rd{position:absolute;top:10px;right:12px;background:var(--sheet);padding:2px 6px;text-align:right}
+
+.vitals{display:grid;grid-template-columns:repeat(5,1fr);border:1.5px solid var(--ink);margin-top:22px;background:var(--sheet)}
+.vital{padding:14px 14px 16px;border-right:1px solid var(--rule)}
+.vital:last-child{border-right:0}
+.vital .n{font:800 46px/1 var(--sans);font-stretch:70%}
+.vital .meter{height:5px;background:var(--rule);margin:8px 0 6px;position:relative}
+.vital .meter i{position:absolute;inset:0 auto 0 0}
+
+.cols{display:grid;grid-template-columns:1.25fr 1fr;gap:28px}
+.flags{background:var(--sheet);border:1px solid var(--rule)}
+.flaggrp{padding:14px 16px;border-bottom:1px solid var(--rule)}
+.flaggrp:last-child{border-bottom:0}
+.flaggrp h3{font:700 12px/1 var(--sans);font-stretch:112%;letter-spacing:.12em;text-transform:uppercase;display:flex;justify-content:space-between;margin-bottom:8px}
+.flag{display:grid;grid-template-columns:52px 1fr;gap:10px;padding:4px 0;font-size:13.5px;line-height:1.5}
+.flag .t{font:600 9.5px/1.9 var(--mono);text-transform:uppercase;letter-spacing:.06em}
+.t.bad{color:var(--red)} .t.warn{color:var(--amber)} .t.good{color:var(--green)} .t.info{color:var(--info)}
+
+.panel{background:var(--sheet);border:1px solid var(--rule);padding:16px}
+.panel+.panel{margin-top:18px}
+.lorenz{width:100%;height:auto;display:block}
+.hbar{display:grid;grid-template-columns:24px 1fr 56px;gap:8px;align-items:center;font:400 11px var(--mono);margin:3px 0}
+.hbar .b{height:10px;background:var(--rule);position:relative}
+.hbar .b i{position:absolute;inset:0 auto 0 0;background:var(--ink)}
+.hbar .b i.ins{background:var(--red)}
+.slip{width:100%;border-collapse:collapse;font:400 12px var(--mono)}
+.slip td,.slip th{padding:6px 2px;border-bottom:1px solid var(--rule);text-align:right}
+.slip th{font-weight:400;color:var(--mute);font-size:10px;text-transform:uppercase;letter-spacing:.06em}
+.slip td:first-child,.slip th:first-child{text-align:left}
+.loading{padding:80px 0;font:400 12px var(--mono);color:var(--mute)}
+.err{padding:40px 0;color:var(--red);font:400 13px var(--mono)}
+footer{margin-top:50px;border-top:1.5px solid var(--ink);padding:22px 0 50px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;font-size:12.5px;color:var(--mute)}
+footer h4{font:700 12px var(--sans);font-stretch:112%;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);margin-bottom:6px}
+footer table{border-collapse:collapse;font:400 11px var(--mono)} footer td{padding:2px 12px 2px 0}
+
+@media (max-width:900px){
+  .wrap{padding:0 16px}
+  header{grid-template-columns:1fr;gap:14px}
+  .intro,.cols{grid-template-columns:1fr;gap:20px}
+  .vitals{grid-template-columns:repeat(2,1fr)}
+  .vital{border-bottom:1px solid var(--rule)}
+  .patient{grid-template-columns:auto 1fr}
+  .score{grid-column:1/-1;text-align:left}
+  .hide-m{display:none}
+  form select{max-width:92px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="logo" href="/"><svg viewBox="0 0 44 22"><path d="M0 13h12l3-10 5 17 4-11 3 4h17" fill="none" stroke="#c8322b" stroke-width="2.4"/></svg>Vitals</a>
+    <form id="f">
+      <input id="q" placeholder="Token address (Solana or 0x…) or a ticker" autocomplete="off" spellcheck="false">
+      <select id="chain" aria-label="Chain"><option value="">Auto</option><option value="solana">Solana</option><option value="ethereum">Ethereum</option><option value="base">Base</option><option value="bsc">BNB</option><option value="arbitrum">Arbitrum</option><option value="polygon">Polygon</option></select>
+      <button>Scan</button>
+    </form>
+  </header>
+  <main id="main"></main>
+  <footer>
+    <div><h4>Scoring</h4><table>
+      <tr><td>Contract &amp; authorities</td><td>30%</td></tr><tr><td>Liquidity &amp; LP lock</td><td>25%</td></tr><tr><td>Holder distribution</td><td>20%</td></tr><tr><td>Trade flow</td><td>15%</td></tr><tr><td>Age &amp; presence</td><td>10%</td></tr></table>
+      <p style="margin-top:8px">Disqualifying findings cap the total: live freeze authority at 35, live mint authority at 50, honeypot at 5, under $10K liquidity at 40.</p></div>
+    <div><h4>Sources</h4>DexScreener for pairs, liquidity and flow. RugCheck for Solana authorities, holders, LP locks and insider graph. GoPlus for EVM contract simulation. GeckoTerminal for hourly candles. Exit slippage uses the constant-product formula <span class="mono">impact = x / (R + x)</span>.</div>
+    <div><h4>About</h4>Built by <a href="https://sunghanpark.vercel.app">Sunghan Park</a>. Source at <a href="https://github.com/hpark236/vitals">github.com/hpark236/vitals</a>. A screening tool, not financial advice. A clean report does not stop a team from selling.</div>
+  </footer>
+</div>
+
+<script type="module">
+import { sellImpact, sellableAt } from './lib/score.js';
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const usd = n => n == null ? '-' : n >= 1e9 ? '$' + (n / 1e9).toFixed(2) + 'B' : n >= 1e6 ? '$' + (n / 1e6).toFixed(2) + 'M' : n >= 1e3 ? '$' + (n / 1e3).toFixed(1) + 'K' : '$' + n.toFixed(0);
+const price = p => p == null ? '-' : p >= 1 ? '$' + p.toFixed(3) : '$' + p.toPrecision(3);
+const age = ms => { const h = (Date.now() - ms) / 36e5; return h < 48 ? Math.round(h) + 'h' : Math.round(h / 24) + 'd'; };
+const chg = v => v == null ? '-' : `<span class="${v >= 0 ? 'up' : 'dn'}">${v >= 0 ? '+' : ''}${v.toFixed(1)}%</span>`;
+const GC = { A: 'var(--green)', B: '#4f7d3a', C: 'var(--amber)', D: '#c0602a', F: 'var(--red)' };
+const sc = s => s >= 70 ? 'var(--green)' : s >= 45 ? 'var(--amber)' : 'var(--red)';
+const CH = { solana: 'Solana', ethereum: 'Ethereum', base: 'Base', bsc: 'BNB Chain', arbitrum: 'Arbitrum', polygon: 'Polygon' };
+
+async function home() {
+  $('#main').innerHTML = `
+    <section class="intro"><h1>Check the pulse <span>before</span> you buy the top.</h1>
+      <div><p>Paste a token address. Vitals reads the contract, the pools and the holder list, and returns a grade with every finding behind it.</p>
+      <p>Mint and freeze authority, LP locks, honeypot simulation, top-wallet concentration, insider clusters, buy and sell pressure, and how far a $10K exit moves the price.</p></div></section>
+    <h2 class="sec"><span>On the ward: tokens buying DexScreener boosts right now</span><span class="cap">click to scan</span></h2>
+    <div id="trend" class="loading">Loading boosted tokens…</div>`;
+  try {
+    const { rows } = await fetch('/api/trending').then(r => r.json());
+    $('#trend').outerHTML = `<table class="list"><thead><tr><th>Token</th><th>Price</th><th>Mkt cap</th><th>Liquidity</th><th class="hide-m">Liq / cap</th><th>24h</th><th class="hide-m">Age</th></tr></thead><tbody>${rows.map(r => `
+      <tr data-c="${esc(r.chain)}" data-a="${esc(r.address)}"><td><div class="tok"><img src="${esc(r.image || '')}" alt="" loading="lazy" onerror="this.style.visibility='hidden'"><div>${esc(r.symbol)}<small>${CH[r.chain]}</small></div></div></td>
+      <td>${price(r.priceUsd)}</td><td>${usd(r.marketCap)}</td><td>${usd(r.liquidityUsd)}</td><td class="hide-m">${r.marketCap ? (r.liquidityUsd / r.marketCap * 100).toFixed(1) + '%' : '-'}</td><td>${chg(r.ch24)}</td><td class="hide-m">${r.createdAt ? age(r.createdAt) : '-'}</td></tr>`).join('')}</tbody></table>`;
+    document.querySelector('table.list').onclick = e => { const tr = e.target.closest('tr[data-a]'); if (tr) go(tr.dataset.a, tr.dataset.c); };
+  } catch { $('#trend').textContent = 'Trending list unavailable. Paste an address above.'; }
+}
+
+function go(q, chain = '') {
+  const u = new URL(location); u.search = ''; u.searchParams.set('q', q); if (chain) u.searchParams.set('chain', chain);
+  history.pushState({}, '', u); route();
+}
+
+async function scan(q, chain) {
+  $('#main').innerHTML = `<div class="loading">Taking vitals for ${esc(q)}… reading pools, contract and holders.</div>`;
+  let j;
+  try { j = await fetch(`/api/scan?q=${encodeURIComponent(q)}${chain ? '&chain=' + chain : ''}`).then(r => r.json()); }
+  catch { $('#main').innerHTML = '<div class="err">Network error. Try again.</div>'; return; }
+  if (j.error) { $('#main').innerHTML = `<div class="err">${esc(j.error)}</div>`; return; }
+  if (j.type === 'search') return results(q, j.results);
+  report(j);
+}
+
+function results(q, rows) {
+  $('#main').innerHTML = `<h2 class="sec"><span>Tokens matching “${esc(q)}”</span><span class="cap">ticker search returns imitations too. Check the chain and liquidity</span></h2>` +
+    (rows.length ? `<table class="list"><thead><tr><th>Token</th><th>Price</th><th>Mkt cap</th><th>Liquidity</th><th class="hide-m">Address</th><th>Age</th></tr></thead><tbody>${rows.map(r => `
+    <tr data-c="${esc(r.chain)}" data-a="${esc(r.address)}"><td><div class="tok"><img src="${esc(r.image || '')}" alt="" onerror="this.style.visibility='hidden'"><div>${esc(r.symbol)} <span style="font-weight:400;color:var(--mute)">${esc(r.name)}</span><small>${CH[r.chain]}</small></div></div></td>
+    <td>${price(r.priceUsd)}</td><td>${usd(r.marketCap)}</td><td>${usd(r.liquidityUsd)}</td><td class="hide-m">${esc(r.address.slice(0, 6))}…${esc(r.address.slice(-4))}</td><td>${r.createdAt ? age(r.createdAt) : '-'}</td></tr>`).join('')}</tbody></table>` : '<div class="err">No matches on supported chains.</div>');
+  const t = document.querySelector('table.list'); if (t) t.onclick = e => { const tr = e.target.closest('tr[data-a]'); if (tr) go(tr.dataset.a, tr.dataset.c); };
+}
+
+function report(j) {
+  const t = j.token, r = j.report, P = r.parts;
+  document.title = `${t.symbol} · ${r.score}/100 · Vitals`;
+  const names = { contract: 'Contract', liquidity: 'Liquidity', holders: 'Holders', activity: 'Trade flow', maturity: 'Age & presence' };
+  const flags = Object.entries(P).map(([k, p]) => `<div class="flaggrp"><h3><span>${names[k]}</span><span style="color:${sc(p.score)}">${p.score}</span></h3>${p.flags.map(([lvl, txt]) => `<div class="flag"><span class="t ${lvl}">${lvl === 'bad' ? 'Risk' : lvl === 'warn' ? 'Watch' : lvl === 'good' ? 'OK' : 'Note'}</span><span>${esc(txt)}</span></div>`).join('')}</div>`).join('');
+  const ext = j.security?.externalRisks?.length ? `<div class="flaggrp"><h3><span>${esc(j.security.source)} also reports</span></h3>${j.security.externalRisks.map(x => `<div class="flag"><span class="t ${x.level === 'danger' ? 'bad' : 'warn'}">${x.level === 'danger' ? 'Risk' : 'Watch'}</span><span><b>${esc(x.name)}.</b> ${esc(x.description)}</span></div>`).join('')}</div>` : '';
+  const holders = j.security?.holders || [];
+  const sizes = [1e3, 5e3, 10e3, 50e3, 100e3];
+  $('#main').innerHTML = `
+    <section class="patient">
+      <img src="${esc(t.image || '')}" alt="" onerror="this.style.visibility='hidden'">
+      <div><div class="cap">${CH[t.chain]}${j.security?.launchpad ? ' · ' + esc(j.security.launchpad) : ''} · scanned ${new Date(j.scannedAt).toLocaleTimeString()}</div>
+        <h1>${esc(t.name)} <span style="color:var(--mute)">$${esc(t.symbol)}</span></h1>
+        <div class="addr" title="Click to copy" id="addr">${esc(t.address)}</div>
+        <div class="chips"><a class="chip" href="${esc(t.dexUrl)}" target="_blank" rel="noopener">DexScreener ↗</a>${t.links.slice(0, 4).map(l => `<a class="chip" href="${esc(l.url)}" target="_blank" rel="noopener nofollow">${esc(l.label)} ↗</a>`).join('')}</div></div>
+      <div class="score"><span class="cap">Health score</span><b>${r.score}</b><span class="g" style="background:${GC[r.grade]}">${r.grade}</span></div>
+    </section>
+    <div class="verdict"><p>${esc(r.verdict)}</p><span class="cap">${r.capped ? `Capped from ${r.raw} because: ${esc(r.capped)}` : `Price ${price(t.priceUsd)} · Mkt cap ${usd(t.marketCap)} · Liquidity ${usd(t.liquidityUsd)} · 24h vol ${usd(t.vol24)}`}</span></div>
+    <div class="ecg"><canvas id="ecg"></canvas><span class="lbl cap">Hourly close, last ${Math.round(j.candles.length / 24) || '<1'} days</span><span class="rd cap" id="ecgRd"></span></div>
+    <div class="vitals">${Object.entries(P).map(([k, p]) => `<div class="vital"><div class="cap">${names[k]} · ${Math.round(r.weights[k] * 100)}%</div><div class="n">${p.score}</div><div class="meter"><i style="width:${p.score}%;background:${sc(p.score)}"></i></div></div>`).join('')}</div>
+    <div class="cols">
+      <div><h2 class="sec"><span>Findings</span><span class="cap">${esc(j.security?.source || 'security source unavailable')} + DexScreener</span></h2><div class="flags">${flags}${ext}</div></div>
+      <div>
+        <h2 class="sec"><span>Who holds it</span><span class="cap">top 20 wallets, pools excluded</span></h2>
+        <div class="panel">${holders.length ? `${lorenz(holders)}
+          <div class="cap" style="margin:10px 0 8px">Top 10: ${P.holders.top10.toFixed(1)}% · Gini (top 20) ${P.holders.gini.toFixed(2)} · HHI ${Math.round(P.holders.hhi)}</div>
+          ${holders.slice(0, 10).map((h, i) => `<div class="hbar"><span>${i + 1}</span><span class="b"><i class="${h.insider ? 'ins' : ''}" style="width:${Math.min(100, h.pct / Math.max(holders[0].pct, 1) * 100)}%"></i></span><span style="text-align:right">${h.pct.toFixed(2)}%</span></div>`).join('')}
+          <div class="cap" style="margin-top:8px">${holders.some(h => h.insider) ? 'Red bars: wallets linked to the deployer.' : ''}</div>` : '<div class="cap">Holder list unavailable for this token.</div>'}</div>
+        <h2 class="sec"><span>Exit test</span><span class="cap">selling into ${usd(t.liquidityUsd)} of pooled liquidity</span></h2>
+        <div class="panel"><table class="slip"><tr><th>Sell size</th><th>Price impact</th><th>You receive</th></tr>
+          ${sizes.map(s => { const im = sellImpact(s, t.liquidityUsd); return `<tr><td>${usd(s)}</td><td class="${im > 0.1 ? 'dn' : ''}">${(im * 100).toFixed(2)}%</td><td>${usd(s * (1 - im))}</td></tr>`; }).join('')}</table>
+          <p class="cap" style="margin-top:10px">Largest sale under 2% impact: ${usd(sellableAt(0.02, t.liquidityUsd))} · under 10%: ${usd(sellableAt(0.10, t.liquidityUsd))}. Constant-product estimate across all pools, before DEX fees.</p></div>
+        <h2 class="sec"><span>Pools</span></h2>
+        <div class="panel"><table class="slip"><tr><th>DEX</th><th>Pair</th><th>Liquidity</th><th>24h vol</th></tr>${t.pools.map(p => `<tr><td><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.dex)}${p.labels.length ? ' ' + esc(p.labels.join(' ')) : ''}</a></td><td>${esc(t.symbol)}/${esc(p.quote)}</td><td>${usd(p.liquidityUsd)}</td><td>${usd(p.vol24)}</td></tr>`).join('')}</table></div>
+      </div>
+    </div>`;
+  $('#addr').onclick = () => navigator.clipboard?.writeText(t.address).then(() => { $('#addr').textContent = 'Copied'; setTimeout(() => $('#addr').textContent = t.address, 900); });
+  window.__c = j.candles; drawEcg(j.candles);
+}
+
+// Lorenz curve of the top 20 holder shares: how far from an even split the top of the book is.
+function lorenz(h) {
+  const v = h.slice(0, 20).map(x => x.pct).sort((a, b) => a - b), tot = v.reduce((a, b) => a + b, 0);
+  let acc = 0; const pts = [[0, 0], ...v.map((x, i) => (acc += x, [(i + 1) / v.length, acc / tot]))];
+  const W = 320, H = 170, px = x => 30 + x * (W - 40), py = y => H - 22 - y * (H - 34);
+  return `<svg class="lorenz" viewBox="0 0 ${W} ${H}" role="img" aria-label="Lorenz curve of top holders">
+    <line x1="${px(0)}" y1="${py(0)}" x2="${px(1)}" y2="${py(1)}" stroke="#ddd4c6" stroke-dasharray="3 3"/>
+    <polygon points="${pts.map(([x, y]) => px(x) + ',' + py(y)).join(' ')} ${px(1)},${py(0)}" fill="#c8322b" opacity=".09"/>
+    <polyline points="${pts.map(([x, y]) => px(x) + ',' + py(y)).join(' ')}" fill="none" stroke="#1b1a18" stroke-width="1.8"/>
+    <line x1="${px(0)}" y1="${py(0)}" x2="${px(1)}" y2="${py(0)}" stroke="#1b1a18"/><line x1="${px(0)}" y1="${py(0)}" x2="${px(0)}" y2="${py(1)}" stroke="#1b1a18"/>
+    <text x="${px(.5)}" y="${H - 5}" font-family="Martian Mono" font-size="8.5" fill="#76716a" text-anchor="middle">wallets, smallest to largest of the top 20</text>
+    <text x="10" y="${py(.5)}" font-family="Martian Mono" font-size="8.5" fill="#76716a" transform="rotate(-90 10 ${py(.5)})" text-anchor="middle">cumulative share</text></svg>`;
+}
+
+// Price trace drawn on ECG paper: 1 small square per hour, a bold square every 6.
+function drawEcg(c) {
+  const cv = $('#ecg'); if (!cv) return;
+  const dpr = devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight;
+  cv.width = W * dpr; cv.height = H * dpr;
+  const x = cv.getContext('2d'); x.scale(dpr, dpr);
+  x.fillStyle = '#fffdf8'; x.fillRect(0, 0, W, H);
+  const n = Math.max(c.length, 2), step = W / n;
+  for (let i = 0; i <= n; i++) { x.strokeStyle = i % 6 ? '#f3d9d3' : '#e8b3a8'; x.lineWidth = 1; x.beginPath(); x.moveTo(i * step, 0); x.lineTo(i * step, H); x.stroke(); }
+  const rows = Math.round(H / step) || 10;
+  for (let i = 0; i <= rows; i++) { x.strokeStyle = i % 6 ? '#f3d9d3' : '#e8b3a8'; x.beginPath(); x.moveTo(0, i * H / rows); x.lineTo(W, i * H / rows); x.stroke(); }
+  if (c.length < 2) { $('#ecgRd').textContent = 'no candle data'; return; }
+  const closes = c.map(k => k[4]), lo = Math.min(...c.map(k => k[3])), hi = Math.max(...c.map(k => k[2]));
+  const y = v => H - 18 - (v - lo) / ((hi - lo) || 1) * (H - 44);
+  x.strokeStyle = '#1b1a18'; x.lineWidth = 1.8; x.lineJoin = 'round'; x.beginPath();
+  closes.forEach((v, i) => { const px = (i + .5) * step; i ? x.lineTo(px, y(v)) : x.moveTo(px, y(v)); }); x.stroke();
+  const last = closes.at(-1), first = closes[0], ch = (last / first - 1) * 100;
+  x.fillStyle = '#c8322b'; x.beginPath(); x.arc((closes.length - .5) * step, y(last), 3.5, 0, 7); x.fill();
+  $('#ecgRd').innerHTML = `${price(last)} · <span class="${ch >= 0 ? 'up' : 'dn'}">${ch >= 0 ? '+' : ''}${ch.toFixed(1)}%</span> over window · high ${price(hi)} · low ${price(lo)}`;
+}
+
+function route() {
+  const u = new URL(location), q = u.searchParams.get('q');
+  if (q) { $('#q').value = q; $('#chain').value = u.searchParams.get('chain') || ''; scan(q, u.searchParams.get('chain') || ''); }
+  else { document.title = 'Vitals · memecoin health check'; home(); }
+}
+$('#f').onsubmit = e => { e.preventDefault(); const q = $('#q').value.trim(); if (q) go(q, $('#chain').value); };
+addEventListener('popstate', route);
+let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => window.__c && drawEcg(window.__c), 150); });
+route();
+</script>
+</body>
+</html>
