@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Vitals</title>
+<title>token-risk</title>
 <meta name="description" content="Risk score for Solana and EVM tokens based on contract permissions, liquidity, holder concentration, trading activity and age.">
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-<h1><a href="/" style="color:inherit;text-decoration:none">Vitals</a></h1>
+<h1><a href="/" style="color:inherit;text-decoration:none">token-risk</a></h1>
 <p class="desc">Enter a Solana or EVM token address, or a ticker, to get a risk score from 0 to 100. The score is based on contract permissions, liquidity, holder concentration, trading activity and age, and each deduction is listed with its reason.</p>
 
 <form id="f" class="controls">
@@ -32,7 +32,7 @@
   </tbody>
 </table>
 <p class="small">Some findings cap the total: live freeze authority at 35, live mint authority at 50, honeypot at 5, liquidity under $10K at 40.</p>
-<p class="small muted">Data from DexScreener, RugCheck, GoPlus and GeckoTerminal. Not financial advice. Source: <a href="https://github.com/hpark236/vitals">github.com/hpark236/vitals</a></p>
+<p class="small muted">Data from DexScreener, RugCheck, GoPlus and GeckoTerminal. Not financial advice. Source: <a href="https://github.com/hpark236/token-risk">github.com/hpark236/token-risk</a></p>
 
 <script type="module">
 import { sellImpact, sellableAt } from './lib/score.js';
@@ -80,7 +80,7 @@ async function scan(q, chain) {
 
 function report(j) {
   const t = j.token, r = j.report, P = j.report.parts;
-  document.title = `${t.symbol}: ${r.score}/100 · Vitals`;
+  document.title = `${t.symbol}: ${r.score}/100 · token-risk`;
   const names = { contract: 'Contract', liquidity: 'Liquidity', holders: 'Holders', activity: 'Trading', maturity: 'Age' };
   const holders = j.security?.holders || [];
   $('#main').innerHTML = `
@@ -125,7 +125,7 @@ function chart(c) {
 function route() {
   const u = new URL(location), q = u.searchParams.get('q');
   if (q) { $('#q').value = q; $('#chain').value = u.searchParams.get('chain') || ''; scan(q, u.searchParams.get('chain') || ''); }
-  else { document.title = 'Vitals'; home(); }
+  else { document.title = 'token-risk'; home(); }
 }
 $('#f').onsubmit = e => { e.preventDefault(); const q = $('#q').value.trim(); if (q) go(q, $('#chain').value); };
 addEventListener('popstate', route);

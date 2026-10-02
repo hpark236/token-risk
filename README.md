@@ -1,8 +1,8 @@
-# Vitals
+# token-risk
 
-A memecoin health check. Paste a Solana or EVM token address (or a ticker) and Vitals reads the contract, the pools and the holder list, then returns a 0-100 grade with every finding behind it.
+A memecoin health check. Paste a Solana or EVM token address (or a ticker) and token-risk reads the contract, the pools and the holder list, then returns a 0-100 grade with every finding behind it.
 
-**Live:** https://coin-vitals.vercel.app
+**Live:** https://token-risk.vercel.app
 
 ## What it checks
 
