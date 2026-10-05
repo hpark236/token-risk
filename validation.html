@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>token-risk: validation</title>
+<meta name="description" content="Testing token-risk against what actually happened to pump.fun coins after graduation, and the launch model fitted from that data.">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<h1><a href="/" style="color:inherit;text-decoration:none">token-risk</a></h1>
+<p class="controls"><a href="/">Check a token</a> <span class="muted">|</span> <b>Does the score work?</b></p>
+<p class="desc">A risk score is only useful if risky-looking coins actually do worse. This page tests that on pump.fun coins at the moment they graduate to a DEX pool, which is when most people first see them, and reports how they did afterwards.</p>
+<div id="out"><p class="muted">Loading…</p></div>
+
+<script type="module">
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const pct = (x, d = 1) => x == null || !isFinite(x) ? '-' : (x * 100).toFixed(d) + '%';
+const f3 = x => x == null || !isFinite(x) ? '-' : x.toFixed(3);
+const day = t => new Date(t).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+const tbl = (head, rows) => `<table><thead><tr>${head.map((h, i) => `<th class="${i ? '' : 'l'}">${h}</th>`).join('')}</tr></thead><tbody>${rows.map(c => `<tr>${c.map((v, i) => `<td class="${i ? '' : 'l'}">${v}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+const NAMES = {
+  logMinutesToGrad: 'Minutes from launch to graduation (log)', instant: 'Graduated inside its first traded minute', logActiveMinutes: 'Minutes with trades before graduating (log)',
+  logPreVolume: 'USD volume before graduating (log)', firstMinuteShare: 'Share of pre-graduation volume in the first minute', firstMinuteCurve: 'Price after the first minute, vs graduation price',
+  preDrawdown: 'Largest fall before graduating', mayhem: 'Mayhem Mode', holderRewards: 'Holder Rewards coin', socials: 'Number of social links',
+  tweetLink: 'X link points to one tweet, not an account', terminalLaunch: 'Metadata hosted by a trading terminal, not pump.fun', tweetImage: 'Image taken from X',
+  description: 'Has a description', logCreatorPrior: 'Coins the creator launched before (log)', creatorGraduatedBefore: 'Creator graduated a coin before',
+};
+
+// Live results come from the data branch, which a scheduled job updates; the copy deployed with the site is the fallback.
+let V;
+for (const u of ['https://raw.githubusercontent.com/hpark236/token-risk/data/validation.json', '/validation/data/validation.json']) {
+  try { V = await fetch(u, { cache: 'no-store' }).then(r => { if (!r.ok) throw 0; return r.json(); }); break; } catch {}
+}
+if (!V) { $('#out').innerHTML = '<p>Results not available.</p>'; throw new Error('no data'); }
+
+const D = V.dataset, [model, v1, base] = V.models, h6 = V.horizonRates.find(h => h.horizon === '6h');
+const seg = name => V.segments.find(s => s.label === name);
+const inst = seg('Graduated in the first minute'), slow = seg('Took over 30 minutes to graduate');
+const top = V.calibration.at(-1), bottom = V.calibration[0];
+$('#out').innerHTML = `
+<div class="box"><b>Findings</b><ul>
+  <li>${pct(h6.dead, 0)} of graduated coins were down 90% or more six hours later. The median coin was ${pct(h6.medianReturn, 0)}. ${pct(h6.doubled, 0)} did double at some point in those six hours.</li>
+  <li>The existing token-risk score cannot tell them apart at graduation (AUC ${f3(v1.auc)}, where 0.5 is a coin flip). Every new pump.fun coin has revoked authorities, a fresh pool of similar size and no history, so the score barely varies.</li>
+  <li>A model built on launch behaviour scores AUC <b>${f3(model.auc)}</b> on creators it was not trained on. The fifth of coins it rates riskiest died ${pct(top.actual, 0)} of the time, and the safest fifth ${pct(bottom.actual, 0)}.</li>
+  <li>The strongest single signal is how long a coin took to graduate: ${pct(inst.deadRate, 0)} of coins that graduated inside their first minute died, against ${pct(slow.deadRate, 0)} of those that took over 30 minutes. Graduating inside one minute means the whole curve was bought within seconds of launch.</li>
+  <li><b>Mayhem Mode:</b> ${V.mayhem.phantom} coins listed as graduated were Mayhem coins that never reached the graduation price. Their curves completed with a median ${V.mayhem.phantomMedianCurveSol.toFixed(2)} SOL (normal is about 115) and peaked at ${pct(V.mayhem.phantomMedianPeakVsGrad, 0)} of the graduation price, because the agent's extra supply was sold into the curve. Only ${V.mayhem.reachedGraduation} Mayhem coins graduated normally. Treating pump.fun's "graduated" list as a quality filter is wrong for these coins.</li>
+</ul></div>
+
+<h2>Setup</h2>
+<ul>
+  <li><b>Coins:</b> every pump.fun coin listed as graduated that pump.fun's API still returns (about one day), paired with SOL. ${D.labelled} have a six-hour outcome, from ${D.creators} different creators, graduating between ${day(D.from)} and ${day(D.to)}. ${D.forward ? `${D.forward} more come from the live collector below.` : ''}</li>
+  <li><b>Decision point:</b> the end of the first one-minute candle in which the price reached 90% of the bonding curve's final price (115 SOL / 279.9M tokens, priced in USD at the time). The entry price is that candle's close.</li>
+  <li><b>Outcome:</b> ${esc(V.target.text)}.</li>
+  <li><b>Features:</b> only what was visible at the decision point: the coin's own candles up to that minute, its metadata, and the creator's earlier launches.</li>
+  <li><b>Testing:</b> five-fold cross-validation, with folds split by creator so the same wallet's coins are never in both training and test data.</li>
+</ul>
+${tbl(['After graduation', 'Coins', 'Down 90%+', 'Down 50%+', 'Doubled at some point', 'Median return'], V.horizonRates.map(h => [h.horizon, h.n, pct(h.dead, 0), pct(h.halved, 0), pct(h.doubled, 0), pct(h.medianReturn, 0)]))}
+
+<h2>Models</h2>
+${tbl(['Model', 'AUC', 'Brier score'], V.models.map(m => [esc(m.name) + (m.note ? `<br><span class="small muted">${esc(m.note)}</span>` : ''), f3(m.auc), m.brier == null ? '-' : m.brier.toFixed(4)]))}
+<p class="small">AUC is the chance that a coin that died is ranked riskier than one that did not. Brier is the mean squared error of the predicted probability (lower is better).</p>
+
+<h3>Calibration</h3>
+${tbl(['Fifth of coins, by predicted risk', 'Coins', 'Predicted', 'Actually died', 'Median 6h return'], V.calibration.map((b, i) => [['Safest', 'Second', 'Middle', 'Fourth', 'Riskiest'][i], b.n, pct(b.predicted, 0), pct(b.actual, 0), pct(b.medianReturn, 0)]))}
+
+<h3>Groups</h3>
+${tbl(['Group', 'Coins', 'Died within 6h', 'Doubled at some point', 'Median 6h return'], V.segments.map(s => [esc(s.label), s.n, pct(s.deadRate, 0), pct(s.doubledRate, 0), pct(s.medianReturn, 0)]))}
+<p class="small">Groups with fewer than about 30 coins, Mayhem and Holder Rewards included, are too small to draw conclusions from.</p>
+
+<h3>Single signals</h3>
+${tbl(['Signal', 'AUC on its own', 'Direction'], V.univariate.map(u => [esc(NAMES[u.name] || u.name), f3(u.auc), u.direction]))}
+
+<h3>Model weights</h3>
+<p class="small">On standardised inputs, so the sizes are comparable. Positive raises the predicted chance of dying. Signals that move together (volume, active minutes, time to graduate) share their weight, so read these together rather than one at a time.</p>
+${tbl(['Signal', 'Weight'], V.coefficients.map(c => [esc(NAMES[c.name] || c.name), `<span class="${c.weight > 0 ? 'neg' : 'pos'}">${c.weight > 0 ? '+' : ''}${c.weight.toFixed(2)}</span>`]))}
+
+<h2>Live test</h2>
+<p>Every 30 minutes a scheduled job records new graduations with the full token-risk score and the launch model's prediction, before the outcome exists, then checks each coin after 1 hour, 6 hours, 24 hours and 7 days. This removes any doubt about rebuilding the past.</p>
+${tbl(['', 'Value'], [['Coins recorded', V.forward.collected], ['With a 6-hour outcome', V.forward.labelled], ['Died within 6h', pct(V.forward.deadRate, 0)], ['Token-risk score AUC', V.forward.v1Auc == null ? 'needs 20 coins' : f3(V.forward.v1Auc)], ['Launch model AUC', V.forward.modelAuc == null ? 'needs 20 coins' : f3(V.forward.modelAuc)]])}
+
+<h2>Limits</h2>
+<ul class="small">
+  <li>The historical set covers about one day, because pump.fun's API stops listing graduations after roughly 1,000 coins. The live collector adds more every day and the model is refitted on the combined data.</li>
+  <li>"Died" is a price rule. A coin can recover after six hours, and a coin that survives can still be a bad buy.</li>
+  <li>Entry at the candle close is optimistic for coins that spike and crash inside one minute.</li>
+  <li>pump.fun's endpoints are unofficial and can change.</li>
+</ul>
+<p class="small muted">Built ${day(V.builtAt)}. Code: <a href="https://github.com/hpark236/token-risk/tree/main/validation">validation/</a>. Not financial advice.</p>`;
+</script>
+</body>
+</html>

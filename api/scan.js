@@ -1,5 +1,6 @@
 import { markets, solanaSecurity, evmSecurity, candles, isEvm, isSol, search, CHAINS } from '../lib/sources.js';
 import { scoreToken } from '../lib/score.js';
+import { launchReport } from '../lib/launch-report.js';
 
 // GET /api/scan?q=<address or ticker>&chain=<optional>
 export default async function handler(req, res) {
@@ -14,9 +15,10 @@ export default async function handler(req, res) {
     const m = await markets(q, chainHint);
     if (!m) return res.status(404).json({ error: 'No DEX pairs found for that address on a supported chain.' });
 
-    const [sec, cs] = await Promise.allSettled([
+    const [sec, cs, launch] = await Promise.allSettled([
       m.chain === 'solana' ? solanaSecurity(m.address) : evmSecurity(m.chain, m.address),
       candles(m.chain, m.topPair),
+      m.chain === 'solana' ? launchReport(m.address) : Promise.resolve(null),
     ]);
     const s = sec.status === 'fulfilled' ? sec.value : null;
     const snap = {
@@ -37,6 +39,7 @@ export default async function handler(req, res) {
       type: 'report', scannedAt: new Date().toISOString(), token: m,
       security: s ? { source: s.source, externalRisks: s.externalRisks, launchpad: s.launchpad || null, cex: s.cex || [], holders: s.holders.slice(0, 20) } : null,
       candles: cs.status === 'fulfilled' ? cs.value : [],
+      launch: launch.status === 'fulfilled' ? launch.value : null,
       report,
     });
   } catch (e) {

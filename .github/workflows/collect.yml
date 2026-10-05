@@ -1,0 +1,35 @@
+name: collect
+# Forward validation: snapshot new pump.fun graduations and label older ones.
+# Results live on the `data` branch so the main branch history stays clean.
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: collect
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: data
+          path: databranch
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node validation/collect.mjs
+        env:
+          DATA_DIR: databranch
+      - run: node validation/analyze.mjs > /dev/null
+        env:
+          DATA_DIR: databranch
+      - run: |
+          cd databranch
+          git config user.name "token-risk collector"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || (git commit -q -m "Collect $(date -u +%Y-%m-%dT%H:%MZ)" && git push -q)

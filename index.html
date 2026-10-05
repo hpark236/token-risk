@@ -10,6 +10,7 @@
 </head>
 <body>
 <h1><a href="/" style="color:inherit;text-decoration:none">token-risk</a></h1>
+<p class="controls"><b>Check a token</b> <span class="muted">|</span> <a href="/validation">Does the score work?</a></p>
 <p class="desc">Enter a Solana or EVM token address, or a ticker, to get a risk score from 0 to 100. The score is based on contract permissions, liquidity, holder concentration, trading activity and age, and each deduction is listed with its reason.</p>
 
 <form id="f" class="controls">
@@ -95,6 +96,7 @@ function report(j) {
       <dt>24h volume</dt><dd>${usd(t.vol24)}</dd>
       <dt>Links</dt><dd><a href="${esc(t.dexUrl)}" target="_blank" rel="noopener">DexScreener</a>${t.links.slice(0, 4).map(l => ` · <a href="${esc(l.url)}" target="_blank" rel="noopener nofollow">${esc(l.label)}</a>`).join('')}</dd>
     </dl>
+    ${launchBox(j.launch)}
     ${chart(j.candles)}
     <h3>Scores</h3>
     <table style="max-width:520px"><thead><tr><th class="l">Category</th><th>Weight</th><th>Score</th></tr></thead><tbody>${Object.entries(P).map(([k, p]) => `<tr><td class="l">${names[k]}</td><td>${Math.round(r.weights[k] * 100)}%</td><td>${p.score}</td></tr>`).join('')}</tbody></table>
@@ -109,6 +111,18 @@ function report(j) {
     <p class="small muted">Constant-product estimate (x × y = k) across ${usd(t.liquidityUsd)} of pooled liquidity, before fees. Largest sale under 2% impact: about ${usd(sellableAt(0.02, t.liquidityUsd))}.</p>
     <h3>Pools</h3>
     <table><thead><tr><th class="l">DEX</th><th class="l">Pair</th><th>Liquidity</th><th>24h volume</th></tr></thead><tbody>${t.pools.map(p => `<tr><td class="l"><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.dex)}</a></td><td class="l">${esc(t.symbol)}/${esc(p.quote)}</td><td>${usd(p.liquidityUsd)}</td><td>${usd(p.vol24)}</td></tr>`).join('')}</tbody></table>`;
+}
+
+// pump.fun launch section: launch-mode notes and the validated launch model.
+function launchBox(L) {
+  if (!L) return '';
+  const m = L.model;
+  const notes = L.notes.map(([lvl, txt]) => `<li class="${LV[lvl][1]}">${esc(txt)}</li>`).join('');
+  const head = m ? `<p>Chance this coin is down 90% or more 6 hours after graduating: <b style="font-size:20px">${(m.p * 100).toFixed(0)}%</b> <span class="muted">(average for graduated coins: ${(m.baseRate * 100).toFixed(0)}%)</span></p>
+    <p class="small">Graduated ${m.minutesToGrad < 1 ? 'within its first minute' : Math.round(m.minutesToGrad) + ' minutes after launch'}, ${m.hoursSinceGraduation < 48 ? m.hoursSinceGraduation.toFixed(1) + ' hours ago' : Math.round(m.hoursSinceGraduation / 24) + ' days ago'}.${m.hoursSinceGraduation > 6 ? ' The 6-hour window has passed, so this describes how the launch looked, not what comes next.' : ''}</p>
+    <table style="max-width:560px"><thead><tr><th class="l">Biggest factors for this coin</th><th>Effect</th></tr></thead><tbody>${m.drivers.map(d => `<tr><td class="l">${esc(d.name)}</td><td class="${d.logit > 0 ? 'neg' : 'pos'}">${d.logit > 0 ? 'raises risk' : 'lowers risk'}</td></tr>`).join('')}</tbody></table>
+    <p class="small muted">Logistic model fitted on ${m.n} pump.fun graduations, cross-validated AUC ${m.cvAuc.toFixed(2)}. <a href="/validation">How it was tested</a>.</p>` : '';
+  return `<div class="box"><b>pump.fun launch</b>${head}${notes ? `<ul class="small">${notes}</ul>` : ''}</div>`;
 }
 
 // Simple hourly price line.
