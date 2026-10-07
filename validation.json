@@ -1,5 +1,5 @@
 {
- "builtAt": "2026-10-07T17:56:04.673Z",
+ "builtAt": "2026-10-07T22:45:12.918Z",
  "dataBuiltAt": "2026-10-04T16:15:01.645Z",
  "target": {
   "horizon": "6h",
@@ -8,26 +8,26 @@
  },
  "dataset": {
   "listed": 1050,
-  "rows": 1035,
+  "rows": 1063,
   "historical": 821,
-  "forward": 230,
+  "forward": 258,
   "labelled": 811,
   "skipped": {
    "mayhem: completed below graduation price": 215,
    "non-SOL quote": 14
   },
   "from": 1791053400000,
-  "to": 1791395700000,
+  "to": 1791412920000,
   "creators": 788
  },
  "horizonRates": [
   {
    "horizon": "1h",
-   "n": 962,
-   "dead": 0.6964656964656964,
-   "halved": 0.818087318087318,
-   "doubled": 0.34303534303534305,
-   "medianReturn": -0.9496233751867517
+   "n": 995,
+   "dead": 0.6974874371859296,
+   "halved": 0.8180904522613065,
+   "doubled": 0.3487437185929648,
+   "medianReturn": -0.9494154044310381
   },
   {
    "horizon": "6h",
@@ -47,11 +47,11 @@
   },
   {
    "horizon": "24h",
-   "n": 86,
-   "dead": 0.8604651162790697,
-   "halved": 0.9302325581395349,
-   "doubled": 0.313953488372093,
-   "medianReturn": -0.9534455872073787
+   "n": 118,
+   "dead": 0.847457627118644,
+   "halved": 0.923728813559322,
+   "doubled": 0.3644067796610169,
+   "medianReturn": -0.9538933683719345
   }
  ],
  "baseRate": 0.7644882860665845,
@@ -370,7 +370,7 @@
   "reachedGraduation": 9
  },
  "forward": {
-  "collected": 230,
+  "collected": 258,
   "labelled": 197,
   "v1Auc": 0.6702626641651032,
   "modelAuc": 0.793933708567855,
