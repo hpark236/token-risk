@@ -1,5 +1,5 @@
 {
- "builtAt": "2026-10-09T09:27:01.695Z",
+ "builtAt": "2026-10-09T16:27:59.501Z",
  "dataBuiltAt": "2026-10-04T16:15:01.645Z",
  "target": {
   "horizon": "6h",
@@ -8,34 +8,34 @@
  },
  "dataset": {
   "listed": 1050,
-  "rows": 1195,
+  "rows": 1231,
   "historical": 821,
-  "forward": 390,
-  "labelled": 987,
+  "forward": 426,
+  "labelled": 1004,
   "skipped": {
    "mayhem: completed below graduation price": 215,
    "non-SOL quote": 14
   },
   "from": 1791053400000,
-  "to": 1791537960000,
-  "creators": 956
+  "to": 1791563220000,
+  "creators": 972
  },
  "horizonRates": [
   {
    "horizon": "1h",
-   "n": 1138,
-   "dead": 0.7047451669595782,
-   "halved": 0.8172231985940246,
-   "doubled": 0.3471001757469244,
-   "medianReturn": -0.9497382648643513
+   "n": 1155,
+   "dead": 0.7056277056277056,
+   "halved": 0.8164502164502164,
+   "doubled": 0.34805194805194806,
+   "medianReturn": -0.9500160086243921
   },
   {
    "horizon": "6h",
-   "n": 987,
-   "dead": 0.7750759878419453,
-   "halved": 0.8824721377912867,
-   "doubled": 0.3698074974670719,
-   "medianReturn": -0.9541510631190114
+   "n": 1004,
+   "dead": 0.7778884462151394,
+   "halved": 0.8834661354581673,
+   "doubled": 0.3705179282868526,
+   "medianReturn": -0.9543933175845938
   },
   {
    "horizon": "12h",
@@ -47,24 +47,24 @@
   },
   {
    "horizon": "24h",
-   "n": 264,
-   "dead": 0.8712121212121212,
-   "halved": 0.9431818181818182,
-   "doubled": 0.3712121212121212,
-   "medianReturn": -0.9565336621804129
+   "n": 280,
+   "dead": 0.8714285714285714,
+   "halved": 0.9392857142857143,
+   "doubled": 0.37857142857142856,
+   "medianReturn": -0.9576088226968373
   }
  ],
- "baseRate": 0.7750759878419453,
+ "baseRate": 0.7778884462151394,
  "models": [
   {
    "name": "Launch model (logistic, cross-validated by creator)",
-   "auc": 0.8760230819054349,
-   "brier": 0.11872134024132475,
-   "logloss": 0.3678974429791554
+   "auc": 0.8775342638792396,
+   "brier": 0.11746605095537188,
+   "logloss": 0.3640539604290518
   },
   {
    "name": "Current token-risk score at graduation",
-   "auc": 0.49606959901077546,
+   "auc": 0.49615589993282155,
    "brier": null,
    "logloss": null,
    "note": "Holder data is not available retroactively, so this mostly reflects socials and age."
@@ -72,72 +72,72 @@
   {
    "name": "Base rate only",
    "auc": 0.5,
-   "brier": 0.1743332009127784,
-   "logloss": 0.5330698452562384
+   "brier": 0.17277801146013586,
+   "logloss": 0.5295675223030737
   }
  ],
  "lambdaSearch": [
   {
    "lambda": 0.1,
-   "auc": 0.8761290702467173,
-   "brier": 0.11880147424588895,
-   "logloss": 0.36805053947513683
+   "auc": 0.8774251706734496,
+   "brier": 0.1175725332705694,
+   "logloss": 0.36423819389157797
   },
   {
    "lambda": 1,
-   "auc": 0.8760230819054349,
-   "brier": 0.11872134024132475,
-   "logloss": 0.3678974429791554
+   "auc": 0.8775342638792396,
+   "brier": 0.11746605095537188,
+   "logloss": 0.3640539604290518
   },
   {
    "lambda": 3,
-   "auc": 0.8755520226108462,
-   "brier": 0.11925236847672073,
-   "logloss": 0.3698878512568116
+   "auc": 0.8769486056165776,
+   "brier": 0.1179565891551246,
+   "logloss": 0.36597984277480655
   },
   {
    "lambda": 10,
-   "auc": 0.8702172760996291,
-   "brier": 0.12152644984705518,
-   "logloss": 0.3770184972897835
+   "auc": 0.8720221861130091,
+   "brier": 0.12017429460920748,
+   "logloss": 0.37304966726605315
   },
   {
    "lambda": 30,
-   "auc": 0.8620915032679739,
-   "brier": 0.12438621809927945,
-   "logloss": 0.3868087688949458
+   "auc": 0.8635243995567371,
+   "brier": 0.12300028841982415,
+   "logloss": 0.38287199792380044
   }
  ],
  "calibration": [
   {
-   "n": 197,
-   "predicted": 0.32938171787432347,
-   "actual": 0.38071065989847713,
-   "medianReturn": -0.8277209217578925
+   "n": 200,
+   "predicted": 0.33161041144009756,
+   "actual": 0.38,
+   "medianReturn": -0.825337593538845
   },
   {
-   "n": 197,
-   "predicted": 0.7169671909593225,
-   "actual": 0.5989847715736041,
-   "medianReturn": -0.919474831391956
+   "n": 201,
+   "predicted": 0.723318973739153,
+   "actual": 0.6119402985074627,
+   "medianReturn": -0.9207114449846528
   },
   {
-   "n": 198,
-   "predicted": 0.9097242159121246,
-   "actual": 0.9191919191919192,
-   "medianReturn": -0.9558305695114454
+   "n": 201,
+   "predicted": 0.9123240181368859,
+   "actual": 0.9203980099502488,
+   "medianReturn": -0.9561450576680721
   },
   {
-   "n": 197,
-   "predicted": 0.9500756768817756,
-   "actual": 0.9949238578680203,
+   "n": 201,
+   "predicted": 0.9518219415357017,
+   "actual": 0.9900497512437811,
    "medianReturn": -0.9943222704952016
   },
   {
-   "n": 198,
-   "predicted": 0.968002802641047,
-   "actual": 0.9797979797979798,
-   "medianReturn": -0.9936541892773552
+   "n": 201,
+   "predicted": 0.9688643395450021,
+   "actual": 0.9850746268656716,
+   "medianReturn": -0.9940577408897286
   }
  ],
  "model": {
@@ -146,165 +146,165 @@
  "univariate": [
   {
    "name": "logPreVolume",
-   "auc": 0.822004357298475,
+   "auc": 0.8230221114702894,
    "direction": "higher = less likely to die"
   },
   {
    "name": "logMinutesToGrad",
-   "auc": 0.6867956191485602,
+   "auc": 0.6866182828729408,
    "direction": "higher = less likely to die"
   },
   {
    "name": "logActiveMinutes",
-   "auc": 0.6648324795383619,
+   "auc": 0.6647852873457623,
    "direction": "higher = less likely to die"
   },
   {
    "name": "preDrawdown",
-   "auc": 0.6514867808985456,
+   "auc": 0.6509591589488009,
    "direction": "higher = less likely to die"
   },
   {
    "name": "terminalLaunch",
-   "auc": 0.6458399576046635,
+   "auc": 0.646095898669637,
    "direction": "higher = less likely to die"
   },
   {
    "name": "firstMinuteShare",
-   "auc": 0.6454572219278102,
+   "auc": 0.6455676578837066,
    "direction": "higher = more likely to die"
   },
   {
    "name": "firstMinuteCurve",
-   "auc": 0.6423423423423423,
+   "auc": 0.6424498888971826,
    "direction": "higher = more likely to die"
   },
   {
    "name": "instant",
-   "auc": 0.640646528881823,
+   "auc": 0.6410259354742397,
    "direction": "higher = more likely to die"
   },
   {
    "name": "socials",
-   "auc": 0.6262262262262263,
+   "auc": 0.6258217876357206,
    "direction": "higher = more likely to die"
   },
   {
    "name": "logCreatorPrior",
-   "auc": 0.6111405523170229,
+   "auc": 0.6130693660536395,
    "direction": "higher = less likely to die"
   },
   {
    "name": "tweetLink",
-   "auc": 0.590054760642996,
+   "auc": 0.5903808501231604,
    "direction": "higher = less likely to die"
   },
   {
    "name": "tweetImage",
-   "auc": 0.5781840664193605,
+   "auc": 0.5797701004231668,
    "direction": "higher = less likely to die"
   },
   {
    "name": "creatorGraduatedBefore",
-   "auc": 0.5682388270623564,
+   "auc": 0.5701727691874853,
    "direction": "higher = less likely to die"
   },
   {
    "name": "holderRewards",
-   "auc": 0.5243419890478713,
+   "auc": 0.5243478810080212,
    "direction": "higher = less likely to die"
   },
   {
    "name": "description",
-   "auc": 0.5117028793499382,
+   "auc": 0.5104729477558378,
    "direction": "higher = less likely to die"
   },
   {
    "name": "mayhem",
-   "auc": 0.5058823529411764,
+   "auc": 0.5057618437900128,
    "direction": "higher = more likely to die"
   }
  ],
  "coefficients": [
   {
    "name": "logMinutesToGrad",
-   "weight": -1.926452074559973
+   "weight": -1.9208450720501347
   },
   {
    "name": "logActiveMinutes",
-   "weight": 1.459404247001683
+   "weight": 1.4510381057947437
   },
   {
    "name": "logPreVolume",
-   "weight": -0.9839504896153484
+   "weight": -0.9800167422799788
   },
   {
    "name": "firstMinuteCurve",
-   "weight": 0.7213298453256423
+   "weight": 0.7382615449339407
   },
   {
    "name": "firstMinuteShare",
-   "weight": -0.6600466820309479
+   "weight": -0.6769794511241245
   },
   {
    "name": "terminalLaunch",
-   "weight": -0.4157939175795717
+   "weight": -0.41878749839827356
   },
   {
    "name": "mayhem",
-   "weight": 0.3141130580620546
+   "weight": 0.3140120244059062
   },
   {
    "name": "socials",
-   "weight": 0.28801243129537746
+   "weight": 0.30623137531177497
   },
   {
    "name": "description",
-   "weight": -0.2679052686547226
+   "weight": -0.26275102625652186
   },
   {
    "name": "tweetImage",
-   "weight": -0.2622048500003041
+   "weight": -0.2575557161618638
   },
   {
    "name": "preDrawdown",
-   "weight": -0.18304132338627183
+   "weight": -0.1852830087385743
   },
   {
    "name": "logCreatorPrior",
-   "weight": -0.1205193186802437
+   "weight": -0.13002632430965536
   },
   {
    "name": "holderRewards",
-   "weight": -0.10514404652130199
+   "weight": -0.10372062166863362
   },
   {
    "name": "tweetLink",
-   "weight": 0.07374363720382551
+   "weight": 0.07305799171986566
   },
   {
    "name": "instant",
-   "weight": -0.06494991487824255
+   "weight": -0.060432308005808066
   },
   {
    "name": "creatorGraduatedBefore",
-   "weight": -0.04331143462236257
+   "weight": -0.027916458419212593
   }
  ],
  "segments": [
   {
    "label": "All graduated coins",
-   "n": 987,
-   "deadRate": 0.7750759878419453,
-   "medianReturn": -0.9541510631190114,
-   "doubledRate": 0.3698074974670719
+   "n": 1004,
+   "deadRate": 0.7778884462151394,
+   "medianReturn": -0.9543933175845938,
+   "doubledRate": 0.3705179282868526
   },
   {
    "label": "Graduated in the first minute",
-   "n": 642,
-   "deadRate": 0.8504672897196262,
-   "medianReturn": -0.9938875508853184,
-   "doubledRate": 0.35202492211838005
+   "n": 657,
+   "deadRate": 0.852359208523592,
+   "medianReturn": -0.9940108342620363,
+   "doubledRate": 0.3515981735159817
   },
   {
    "label": "Took over 30 minutes to graduate",
@@ -336,17 +336,17 @@
   },
   {
    "label": "Links a single tweet",
-   "n": 209,
-   "deadRate": 0.6267942583732058,
+   "n": 210,
+   "deadRate": 0.6285714285714286,
    "medianReturn": -0.9256661382485054,
-   "doubledRate": 0.41626794258373206
+   "doubledRate": 0.41904761904761906
   },
   {
    "label": "No socials",
-   "n": 93,
-   "deadRate": 0.5913978494623656,
-   "medianReturn": -0.9479226250556128,
-   "doubledRate": 0.2903225806451613
+   "n": 97,
+   "deadRate": 0.6082474226804123,
+   "medianReturn": -0.9519302802763179,
+   "doubledRate": 0.27835051546391754
   },
   {
    "label": "Creator launched 10+ coins before",
@@ -357,10 +357,10 @@
   },
   {
    "label": "Creator graduated a coin before",
-   "n": 109,
-   "deadRate": 0.5596330275229358,
+   "n": 111,
+   "deadRate": 0.5585585585585585,
    "medianReturn": -0.9210989826319478,
-   "doubledRate": 0.3486238532110092
+   "doubledRate": 0.34234234234234234
   }
  ],
  "mayhem": {
@@ -370,10 +370,10 @@
   "reachedGraduation": 9
  },
  "forward": {
-  "collected": 390,
-  "labelled": 372,
-  "v1Auc": 0.6657407407407407,
-  "modelAuc": 0.8212962962962963,
-  "deadRate": 0.8064516129032258
+  "collected": 426,
+  "labelled": 388,
+  "v1Auc": 0.663448575777343,
+  "modelAuc": 0.8260926288323549,
+  "deadRate": 0.8118556701030928
  }
 }
