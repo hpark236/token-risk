@@ -1,5 +1,5 @@
 {
- "builtAt": "2026-10-13T16:49:47.405Z",
+ "builtAt": "2026-10-13T21:44:27.710Z",
  "dataBuiltAt": "2026-10-04T16:15:01.645Z",
  "target": {
   "horizon": "6h",
@@ -8,26 +8,26 @@
  },
  "dataset": {
   "listed": 1050,
-  "rows": 1578,
+  "rows": 1601,
   "historical": 821,
-  "forward": 773,
+  "forward": 796,
   "labelled": 1354,
   "skipped": {
    "mayhem: completed below graduation price": 215,
    "non-SOL quote": 14
   },
   "from": 1791053400000,
-  "to": 1791910080000,
+  "to": 1791927840000,
   "creators": 1298
  },
  "horizonRates": [
   {
    "horizon": "1h",
-   "n": 1505,
-   "dead": 0.695016611295681,
-   "halved": 0.8093023255813954,
-   "doubled": 0.3461794019933555,
-   "medianReturn": -0.9499965529041119
+   "n": 1538,
+   "dead": 0.6937581274382315,
+   "halved": 0.8081924577373212,
+   "doubled": 0.3472041612483745,
+   "medianReturn": -0.949467718783478
   },
   {
    "horizon": "6h",
@@ -47,19 +47,19 @@
   },
   {
    "horizon": "24h",
-   "n": 673,
-   "dead": 0.8588410104011887,
-   "halved": 0.9346210995542348,
-   "doubled": 0.37295690936106984,
-   "medianReturn": -0.9607019795735179
+   "n": 700,
+   "dead": 0.8571428571428571,
+   "halved": 0.9328571428571428,
+   "doubled": 0.36714285714285716,
+   "medianReturn": -0.9610972071140883
   },
   {
    "horizon": "7d",
-   "n": 86,
-   "dead": 0.9418604651162791,
-   "halved": 0.9883720930232558,
-   "doubled": 0.26744186046511625,
-   "medianReturn": -0.958247343702517
+   "n": 118,
+   "dead": 0.940677966101695,
+   "halved": 0.9830508474576272,
+   "doubled": 0.3305084745762712,
+   "medianReturn": -0.959825658540373
   }
  ],
  "baseRate": 0.7769571639586411,
@@ -378,7 +378,7 @@
   "reachedGraduation": 9
  },
  "forward": {
-  "collected": 773,
+  "collected": 796,
   "labelled": 735,
   "v1Auc": 0.6499251564909734,
   "modelAuc": 0.8164292842238955,
